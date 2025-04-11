@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Match (Same Photo)</title>
+</head>
+<body>
+    <h2>Upload Image</h2>
+    <form action="/check_faces" enctype="multipart/form-data" method="post">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Check Faces</button>
+    </form>
+
+    {% if result %}
+        <h3>Result:</h3>
+        <img src="data:image/jpeg;base64,{{ result.image }}" alt="Processed Image" style="max-width: 500px;">
+        <ul>
+            {% for comp in result.comparisons %}
+                <li>Face {{ comp.face_pair[0] }} & Face {{ comp.face_pair[1] }}:
+                    Similarity = {{ comp.similarity }},
+                    {% if comp.same_person %}Same Person{% else %}Different{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
