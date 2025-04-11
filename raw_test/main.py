@@ -1,3 +1,4 @@
+import os
 import cv2
 import insightface
 import numpy as np
@@ -11,9 +12,16 @@ def cosine_similarity(a, b):
 app = FaceAnalysis(name='buffalo_l')  # or 'antelopev2' for faster model
 app.prepare(ctx_id=-1)  # -1 means CPU only
 
-# Load two images
-img1 = cv2.imread('static/saurav_Img.jpg')
-img2 = cv2.imread('static/taklu_saurav.jpg')
+# Get base directory (where main.py is located)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Full paths to images inside static folder
+img1_path = os.path.join(BASE_DIR, 'static', 'myImg1.jpg')
+img2_path = os.path.join(BASE_DIR, 'static', 'myImg2.jpg')
+
+# Load images
+img1 = cv2.imread(img1_path)
+img2 = cv2.imread(img2_path)
 
 # Get face info
 faces1 = app.get(img1)
