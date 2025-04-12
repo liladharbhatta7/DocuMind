@@ -2,3 +2,7 @@ opencv-python
 insightface
 numpy
 onnxruntime
+fastapi uvicorn
+jinja2
+-multipart
+easyocr
