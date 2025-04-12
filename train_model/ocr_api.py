@@ -1,11 +1,11 @@
-# app/ocr_api.py
+# ocr_api.py
 
 import os
 import csv
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from app.ocr import OCRReader
+from ocr import OCRReader  # Updated import path
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -69,8 +69,8 @@ async def save_document(payload: dict):
     # Clean the text: remove newlines and extra whitespace
     cleaned_text = re.sub(r'\s+', ' ', raw_text).strip()
 
-    # Define path for CSV file (create the 'data' folder if not exists).
-    csv_path = os.path.join(os.path.dirname(__file__), "..", "data", "document_data.csv")
+    # Define path for CSV file (create the 'data' folder if it doesn't exist).
+    csv_path = os.path.join(os.path.dirname(__file__), "data", "document_data.csv")
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     write_header = not os.path.exists(csv_path)
 
