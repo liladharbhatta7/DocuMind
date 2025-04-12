@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Auto KYC Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        form {
+            max-width: 600px;
+        }
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 0.5rem;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 1.5rem;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Auto KYC Verification Form</h2>
+    <form action="/submit" method="post" enctype="multipart/form-data">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required>
+
+        <label for="father_name">Father's Name:</label>
+        <input type="text" id="father_name" name="father_name" required>
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" rows="3" required></textarea>
+
+        <label for="citizenship_number">Citizenship Number:</label>
+        <input type="text" id="citizenship_number" name="citizenship_number" required>
+
+        <label for="sex">Sex:</label>
+        <select id="sex" name="sex" required>
+            <option value="">--Select--</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
+
+        <label for="citizenship_front">Citizenship Front:</label>
+        <input type="file" id="citizenship_front" name="citizenship_front" accept="image/*" required>
+
+        <label for="citizenship_back">Citizenship Back:</label>
+        <input type="file" id="citizenship_back" name="citizenship_back" accept="image/*" required>
+
+        <label for="pan_card">PAN Card:</label>
+        <input type="file" id="pan_card" name="pan_card" accept="image/*" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
