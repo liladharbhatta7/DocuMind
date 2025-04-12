@@ -1,9 +1,10 @@
+import os
+import joblib
+import tempfile
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
-import joblib
 from app.ocr import OCRReader  # assuming ocr.py is inside train_model/app
 
 # Define BASE_DIR as this file’s directory
@@ -44,20 +45,20 @@ ocr_instance = OCRReader(languages=['en', 'ne'])
 # Predict endpoint
 @app.post("/predict")
 async def predict_document(file: UploadFile = File(...)):
+    temp_path = None
     try:
-        # Save uploaded image temporarily
-        temp_path = os.path.join(STATIC_DIR, file.filename)
-        with open(temp_path, "wb") as f:
-            f.write(await file.read())
-
-        # OCR
+        # Create a temporary file to store the uploaded image
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+            temp_path = temp_file.name
+            temp_file.write(await file.read())
+        
+        # Perform OCR on the temporary file
         extracted_text = ocr_instance.read_text(temp_path)
-        os.remove(temp_path)  # Clean up temp file
-
+        
         if not extracted_text or not extracted_text.strip():
             return JSONResponse(status_code=400, content={"message": "No text found."})
 
-        # Prediction
+        # Use the vectorizer and classifier for prediction
         features = vectorizer.transform([extracted_text])
         prediction = model.predict(features)[0]
 
@@ -65,3 +66,8 @@ async def predict_document(file: UploadFile = File(...)):
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Prediction failed: {str(e)}"})
+    
+    finally:
+        # Cleanup the temporary file if it exists
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
