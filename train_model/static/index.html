@@ -6,6 +6,17 @@
   <title>Document</title>
 </head>
 <body>
-  <h2>Hello</h2>
+  <h1>Train Model</h1>
+  <form action="/train" method="post">
+    <label for="model_name">Model Name:</label><br>
+    <input type="text" id="model_name" name="model_name"><br><br>
+    <label for="data_path">Data Path:</label><br>
+    <input type="text" id="data_path" name="data_path"><br><br>
+    <input type="submit" value="Train Model">
+  </form>
+
+  {% if message %}
+    <p>{{ message }}</p>
+  {% endif %}
 </body>
 </html>
