@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Extraction and Processing</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        .input-group { margin-bottom: 15px; }
+        .loading { color: blue; font-weight: bold; }
+        .result { margin-top: 20px; white-space: pre-wrap; }
+        button { margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OCR Extraction and Processing</h1>
+        <div class="input-group">
+            <label for="citizenshipFront">Citizenship Front:</label>
+            <input type="file" id="citizenshipFront" accept="image/*">
+        </div>
+        <div class="input-group">
+            <label for="citizenshipBack">Citizenship Back:</label>
+            <input type="file" id="citizenshipBack" accept="image/*">
+        </div>
+        <div class="input-group">
+            <button id="extractBtn">Extract</button>
+            <button id="processTextBtn">Process Text</button>
+        </div>
+        <div id="loading" class="loading" style="display: none;">Processing...</div>
+        <div id="result" class="result"></div>
+        <div id="processedResult" class="result"></div>
+    </div>
+    <script src="static/index.js"></script>
+</body>
+</html>
