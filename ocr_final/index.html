@@ -2,67 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>OCR & Face Comparison Application</title>
-  <!-- Bootstrap CSS for Face Comparison Section -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <title>OCR Extraction and Auto-Filled Form</title>
   <style>
-    /* Global styles */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    .section {
-      margin-bottom: 50px;
-    }
-    /* OCR Extraction Styles */
-    #ocrContainer {
-      max-width: 800px;
-      margin: auto;
-    }
-    #ocrContainer .input-group {
-      margin-bottom: 15px;
-    }
-    #ocrContainer .loading {
-      color: blue;
-      font-weight: bold;
-    }
-    #ocrContainer .message {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    #ocrContainer button {
-      margin-right: 10px;
-    }
-    #ocrContainer form {
-      margin-top: 30px;
-    }
-    #ocrContainer label {
-      display: block;
-      margin-top: 10px;
-    }
-    #ocrContainer input[type="text"],
-    #ocrContainer input[type="file"] {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-    }
-    /* Face Comparison Styles */
-    #faceContainer .spinner-border {
-      width: 3rem;
-      height: 3rem;
-    }
-    #faceContainer #processing {
-      display: none;
-    }
-    #faceContainer .result-image {
-      max-width: 100%;
-      height: auto;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    .input-group { margin-bottom: 15px; }
+    .loading { color: blue; font-weight: bold; }
+    .message { margin-top: 20px; font-weight: bold; }
+    button { margin-right: 10px; }
+    form { margin-top: 30px; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 5px; }
   </style>
 </head>
 <body>
-  <!-- OCR Extraction and Auto-Filled Form Section -->
-  <div id="ocrContainer" class="section">
+  <div class="container">
     <h1>OCR Extraction and Auto-Filled Form</h1>
     <div class="input-group">
       <label for="citizenshipFront">Citizenship Front:</label>
@@ -76,7 +30,7 @@
       <button id="extractBtn">Extract</button>
       <button id="processTextBtn">Process Text</button>
     </div>
-    <!-- Status/Message display area -->
+    <!-- Status/Message display areas -->
     <div id="statusMsg" class="message"></div>
     
     <!-- Auto-filled form -->
@@ -85,96 +39,129 @@
       <!-- From the front side -->
       <label for="nameNepali">Name (Nepali):</label>
       <input type="text" id="nameNepali" name="nameNepali" readonly>
-      
+
       <label for="fatherNameNepali">Father's Name (Nepali):</label>
       <input type="text" id="fatherNameNepali" name="fatherNameNepali" readonly>
-      
+
       <!-- From the back side -->
       <label for="fullNameEn">Full Name (English):</label>
       <input type="text" id="fullNameEn" name="fullNameEn" readonly>
-      
+
       <label for="dob">Date of Birth:</label>
       <input type="text" id="dob" name="dob" readonly>
-      
+
       <label for="permanentAddress">Permanent Address:</label>
       <input type="text" id="permanentAddress" name="permanentAddress" readonly>
-      
+
       <label for="sex">Sex:</label>
       <input type="text" id="sex" name="sex" readonly>
-      
+
       <label for="issuerOfficer">Issuer Officer Name (Nepali):</label>
       <input type="text" id="issuerOfficer" name="issuerOfficer" readonly>
-      
+
       <label for="issuerDate">Issuer Date (Nepali):</label>
       <input type="text" id="issuerDate" name="issuerDate" readonly>
     </form>
   </div>
-  
-  <!-- Face Comparison Application Section -->
-  <div id="faceContainer" class="section container bg-light">
-    <h2 class="mb-4">Face Comparison Application</h2>
-    <form id="uploadForm" action="/check_faces" method="post" enctype="multipart/form-data">
-      <div class="custom-file mb-3">
-        <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
-        <label class="custom-file-label" for="image">Choose image file</label>
-      </div>
-      <button type="submit" class="btn btn-primary">Upload and Process</button>
-    </form>
-    <div id="processing" class="mt-3">
-      <div class="spinner-border text-primary" role="status"></div>
-      <span class="ml-2">Processing image, please wait...</span>
-    </div>
-    
-    <!-- Result Display Section -->
-    <!-- Note: The following block uses templating syntax (e.g., Jinja2) -->
-    {% if result %}
-      <div class="mt-4">
-        {% if result.error %}
-          <div class="alert alert-danger">{{ result.error }}</div>
-        {% else %}
-          <div class="alert alert-success">
-            <strong>Comparison Result:</strong>
-            {% for comp in result.comparisons %}
-              <p>
-                Face {{ comp.face_pair[0] }} vs Face {{ comp.face_pair[1] }}:
-                Similarity = {{ comp.similarity }}<br>
-                {% if comp.same_person %}
-                  <span class="text-success">They are the same person.</span>
-                {% else %}
-                  <span class="text-danger">They are different persons.</span>
-                {% endif %}
-              </p>
-            {% endfor %}
-          </div>
-          <div class="card">
-            <img src="data:image/jpeg;base64,{{ result.image }}" class="card-img-top result-image" alt="Annotated Image">
-          </div>
-        {% endif %}
-      </div>
-    {% endif %}
-  </div>
-  
-  <!-- Scripts -->
-  <!-- OCR Extraction Script -->
   <script src="static/index.js"></script>
   
-  <!-- Bootstrap JS and dependencies for Face Comparison Section -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
-  <!-- Face Comparison Script -->
-  <script>
-    const uploadForm = document.getElementById('uploadForm');
-    uploadForm.addEventListener('submit', function() {
-      document.getElementById('processing').style.display = 'block';
-    });
-    
-    document.getElementById('image').addEventListener('change', function(e) {
-      const fileName = e.target.files[0].name;
-      const label = document.querySelector('.custom-file-label');
-      label.innerText = fileName;
-    });
-  </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Match - Upload Document</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        #processing {
+            display: none;
+        }
+        .result-image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="mb-4">Face Comparison Application</h2>
+        <form id="uploadForm" action="/check_faces" method="post" enctype="multipart/form-data">
+            <div class="custom-file mb-3">
+                <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
+                <label class="custom-file-label" for="image">Choose image file</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload and Process</button>
+        </form>
+        <div id="processing" class="mt-3">
+            <div class="spinner-border text-primary" role="status"></div>
+            <span class="ml-2">Processing image, please wait...</span>
+        </div>
+        
+        <!-- Result Display Section -->
+        {% if result %}
+            <div class="mt-4">
+                {% if result.error %}
+                    <div class="alert alert-danger">{{ result.error }}</div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <strong>Comparison Result:</strong>
+                        {% for comp in result.comparisons %}
+                            <p>
+                                Face {{ comp.face_pair[0] }} vs Face {{ comp.face_pair[1] }}:
+                                Similarity = {{ comp.similarity }}<br>
+                                {% if comp.same_person %}
+                                    <span class="text-success">They are the same person.</span>
+                                {% else %}
+                                    <span class="text-danger">They are different persons.</span>
+                                {% endif %}
+                            </p>
+                        {% endfor %}
+                    </div>
+                    <div class="card">
+                        <img src="data:image/jpeg;base64,{{ result.image }}" class="card-img-top result-image" alt="Annotated Image">
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <!-- Show processing indicator -->
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        uploadForm.addEventListener('submit', function() {
+            document.getElementById('processing').style.display = 'block';
+        });
+        
+        // Update file input label when file selected
+        document.getElementById('image').addEventListener('change', function(e) {
+            var fileName = e.target.files[0].name;
+            var label = document.querySelector('.custom-file-label');
+            label.innerText = fileName;
+        });
+    </script>
+</body>
+</html>
+
