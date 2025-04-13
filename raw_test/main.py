@@ -1,7 +1,7 @@
-import os
 import cv2
 import base64
 import uuid
+import os
 import numpy as np
 from fastapi import FastAPI, Request, File, UploadFile, HTTPException
 from fastapi.templating import Jinja2Templates
