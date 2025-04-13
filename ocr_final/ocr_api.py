@@ -1,3 +1,4 @@
+# ocr_api.py
 from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -6,10 +7,11 @@ from pydantic import BaseModel
 import tempfile
 import re
 from ocr import OCRReader
+from main import router as main_router   # import the router from main.py
 
 app = FastAPI()
 
-# Enable CORS (adjust allow_origins as necessary)
+# Enable CORS (adjust allow_origins as needed)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,11 +20,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (for example, your JS in static folder)
+# Mount static files (this will serve your JS/CSS etc. from the ./static folder)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Route for serving the index.html
-@app.get("/", response_class=HTMLResponse)
+# Include the main router to add index and check_faces endpoints
+app.include_router(main_router)
+
+# Route for serving the index.html (as a fallback if needed)
+@app.get("/index", response_class=HTMLResponse)
 async def read_index():
     try:
         with open("index.html", "r", encoding="utf-8") as f:
@@ -30,7 +35,7 @@ async def read_index():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Initialize our OCR reader instance
+# Initialize the OCR reader instance
 ocr_reader = OCRReader()
 
 @app.post("/extract")
@@ -39,14 +44,14 @@ async def extract_text(
     citizenship_back: UploadFile = File(...)
 ):
     results = {}
-    # Process each uploaded file
+    # Process each uploaded file for OCR extraction
     for side, upload in [("citizenship_front", citizenship_front), ("citizenship_back", citizenship_back)]:
         try:
-            # Create a temporary file to save the upload
+            # Save the upload to a temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
                 tmp.write(await upload.read())
                 tmp_path = tmp.name
-            # Extract text using OCR
+            # Extract text with your OCR routine
             text = ocr_reader.read_text(tmp_path)
             results[side] = text
         except Exception as e:
@@ -65,16 +70,9 @@ def convert_nepali_digits(text: str) -> str:
     return text
 
 # ----------------------------------------------------------------
-# Text processing functions to extract required information
+# Functions to process extracted OCR text
 
 def process_front(text: str) -> dict:
-    """
-    Process the front side of the citizenship document.
-    Extracts:
-      - Name (Nepali)
-      - Father's Name (Nepali)
-    """
-    # Convert digits from Nepali to English
     text = convert_nepali_digits(text)
     lines = text.splitlines()
     
@@ -82,14 +80,12 @@ def process_front(text: str) -> dict:
     father_name_nepali = None
 
     for i, line in enumerate(lines):
-        # Look for Nepali Name by keyword "नाम थर"
         if "नाम थर" in line and not name_nepali:
             for j in range(i+1, len(lines)):
                 candidate = lines[j].strip()
                 if candidate:
                     name_nepali = candidate
                     break
-        # Look for Father's Name by keyword "बाबको नाम थर"
         if "बाबको नाम थर" in line and not father_name_nepali:
             for j in range(i+1, len(lines)):
                 candidate = lines[j].strip()
@@ -102,19 +98,7 @@ def process_front(text: str) -> dict:
         "Father's Name (Nepali)": father_name_nepali
     }
 
-
 def process_back(text: str) -> dict:
-    """
-    Process the back side of the citizenship document.
-    Extracts:
-      - Full Name (English)
-      - Date of Birth (combining year, month, and day)
-      - Permanent Address (as a concatenated string)
-      - Sex (English)
-      - Issuer Officer Name (Nepali)
-      - Issuer Date (Nepali)
-    """
-    # Convert digits from Nepali to English
     text = convert_nepali_digits(text)
     lines = text.splitlines()
     
@@ -125,18 +109,14 @@ def process_back(text: str) -> dict:
     issuer_officer = None
     issuer_date = None
 
-    # Full Name (English) extraction
     for i, line in enumerate(lines):
         if "Full Name" in line and not full_name_en:
             for j in range(i+1, len(lines)):
                 candidate = lines[j].strip()
                 if candidate:
-                    full_name_en = candidate
-                    # Correct "LILADHAP" to "LILADHAR"
-                    full_name_en = full_name_en.replace("LILADHAP", "LILADHAR")
+                    full_name_en = candidate.replace("LILADHAP", "LILADHAR")
                     break
 
-    # Date of Birth extraction
     for i, line in enumerate(lines):
         if "Date of Birth" in line:
             for j in range(i+1, min(i+6, len(lines))):
@@ -150,12 +130,10 @@ def process_back(text: str) -> dict:
             break
     dob = " ".join(filter(None, [dob_year, dob_month, dob_day]))
 
-    # Permanent Address extraction (after "Permanent Addressः")
     for i, line in enumerate(lines):
         if "Permanent Address" in line:
             for j in range(i+1, min(i+8, len(lines))):
                 candidate = lines[j].strip()
-                # Skip the unwanted text about the citizenship act.
                 if "नेपाल नररिकता ऐन" in candidate:
                     continue
                 if candidate == "":
@@ -164,13 +142,11 @@ def process_back(text: str) -> dict:
             break
 
     permanent_address = ", ".join(permanent_address_lines)
-    # Standardize the address punctuation and wording:
     permanent_address = (permanent_address
                            .replace("Districtः", "District:")
                            .replace("Municipality", "Municipality:")
                            .replace("Ward No.l", "Ward No. 1"))
     
-    # Sex (English) extraction & conversion to lowercase
     for line in lines:
         if "Sex" in line:
             match = re.search(r"Sex[:\s]*([\w]+)", line)
@@ -178,29 +154,24 @@ def process_back(text: str) -> dict:
                 sex_en = match.group(1).strip().lower()
                 break
 
-    # Automatic sex assignment if the full name is "LILADHAR BHATTA"
     if full_name_en and full_name_en.upper() == "LILADHAR BHATTA" and not sex_en:
         sex_en = "male"
     
-    # Issuer Officer Name extraction; look for "नाम थर" in the issuing block.
     for i, line in enumerate(lines):
         if "नाम थर" in line:
             parts = line.split("नाम थर")
             if len(parts) > 1:
                 candidate = parts[-1].replace(":", "").strip()
                 if candidate:
-                    # Replace "लकेन्द्र" with "लोकेन्द्र"
                     candidate = candidate.replace("लकेन्द्र", "लोकेन्द्र")
                     issuer_officer = candidate
                     break
 
-    # Issuer Date extraction (after "जारी मिति")
     for i, line in enumerate(lines):
         if "जारी मिति" in line:
             for j in range(i+1, len(lines)):
                 candidate = lines[j].strip()
                 if candidate:
-                    # Replace any occurrence of '%4' with '04'
                     issuer_date = candidate.replace("%4", "04")
                     break
             break
@@ -214,19 +185,12 @@ def process_back(text: str) -> dict:
         "Issuer Date (Nepali)": issuer_date
     }
 
-# ----------------------------------------------------------------
-# Model for incoming OCR text to be processed
 class OCRText(BaseModel):
     citizenship_front: str
     citizenship_back: str
 
-@app.post("/process_text")
+@ app.post("/process_text")
 async def process_text(ocr_text: OCRText):
-    """
-    New endpoint to process extracted text.
-    Expects JSON with keys 'citizenship_front' and 'citizenship_back'
-    and returns parsed information from both documents.
-    """
     front_processed = process_front(ocr_text.citizenship_front)
     back_processed = process_back(ocr_text.citizenship_back)
     return {
@@ -234,8 +198,7 @@ async def process_text(ocr_text: OCRText):
         "back_processed": back_processed
     }
 
-# ----------------------------------------------------------------
-# If running this module directly, you can add:
+# Run the combined app via uvicorn when executed directly.
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
