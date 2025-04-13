@@ -8,7 +8,7 @@
     .container { max-width: 800px; margin: auto; }
     .input-group { margin-bottom: 15px; }
     .loading { color: blue; font-weight: bold; }
-    .result { margin-top: 20px; white-space: pre-wrap; }
+    .message { margin-top: 20px; font-weight: bold; }
     button { margin-right: 10px; }
     form { margin-top: 30px; }
     label { display: block; margin-top: 10px; }
@@ -30,10 +30,9 @@
       <button id="extractBtn">Extract</button>
       <button id="processTextBtn">Process Text</button>
     </div>
-    <div id="loading" class="loading" style="display: none;">Processing...</div>
-    <div id="result" class="result"></div>
-    <div id="processedResult" class="result"></div>
-
+    <!-- Status/Message display areas -->
+    <div id="statusMsg" class="message"></div>
+    
     <!-- Auto-filled form -->
     <h2>Auto-Filled Form</h2>
     <form id="autoFillForm">

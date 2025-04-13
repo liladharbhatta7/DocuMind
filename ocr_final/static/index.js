@@ -5,13 +5,10 @@ let extractedData = {};
 document.getElementById('extractBtn').addEventListener('click', async () => {
   const frontInput = document.getElementById('citizenshipFront');
   const backInput = document.getElementById('citizenshipBack');
-  const resultDiv = document.getElementById('result');
-  const processedResultDiv = document.getElementById('processedResult');
-  const loadingDiv = document.getElementById('loading');
+  const statusMsgDiv = document.getElementById('statusMsg');
 
-  // Clear previous results
-  resultDiv.textContent = "";
-  processedResultDiv.textContent = "";
+  // Clear previous status and global data
+  statusMsgDiv.textContent = "";
   extractedData = {};
 
   // Ensure both files are selected
@@ -25,8 +22,8 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
   formData.append("citizenship_front", frontInput.files[0]);
   formData.append("citizenship_back", backInput.files[0]);
 
-  // Display processing message
-  loadingDiv.style.display = "block";
+  // Show processing message during extraction
+  statusMsgDiv.textContent = "Extraction processing...";
 
   try {
     const response = await fetch("/extract", {
@@ -42,21 +39,16 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
     // Save extracted data for later processing
     extractedData = data;
 
-    // Format and display the extracted text from both images
-    let output = "----- Extracted OCR Text (Front) -----\n" + data.citizenship_front +
-      "\n\n----- Extracted OCR Text (Back) -----\n" + data.citizenship_back;
-    resultDiv.textContent = output;
+    // Replace extracted text with a simple status message.
+    statusMsgDiv.textContent = "Extraction complete!";
   } catch (error) {
-    resultDiv.textContent = "Error: " + error.message;
-  } finally {
-    loadingDiv.style.display = "none";
+    statusMsgDiv.textContent = "Error during extraction: " + error.message;
   }
 });
 
 // Event listener for the Process Text button.
 document.getElementById('processTextBtn').addEventListener('click', async () => {
-  const processedResultDiv = document.getElementById('processedResult');
-  const loadingDiv = document.getElementById('loading');
+  const statusMsgDiv = document.getElementById('statusMsg');
 
   // Verify that OCR extraction has already been done.
   if (!extractedData.citizenship_front || !extractedData.citizenship_back) {
@@ -70,8 +62,8 @@ document.getElementById('processTextBtn').addEventListener('click', async () => 
     citizenship_back: extractedData.citizenship_back
   };
 
-  // Display processing message
-  loadingDiv.style.display = "block";
+  // Show processing message during text processing
+  statusMsgDiv.textContent = "Processing text...";
 
   try {
     const response = await fetch("/process_text", {
@@ -88,16 +80,7 @@ document.getElementById('processTextBtn').addEventListener('click', async () => 
 
     const data = await response.json();
 
-    // Format the processed results for display.
-    let processedOutput = "----- Processed Front Information -----\n";
-    for (let key in data.front_processed) {
-      processedOutput += `${key}: ${data.front_processed[key]}\n`;
-    }
-    processedOutput += "\n----- Processed Back Information -----\n";
-    for (let key in data.back_processed) {
-      processedOutput += `${key}: ${data.back_processed[key]}\n`;
-    }
-    processedResultDiv.textContent = processedOutput;
+    statusMsgDiv.textContent = "Processing complete! Form updated.";
 
     // Auto-fill form fields using the processed data:
     // Processed front information
@@ -118,8 +101,8 @@ document.getElementById('processTextBtn').addEventListener('click', async () => 
       document.getElementById('permanentAddress').value = data.back_processed["Permanent Address"];
     }
     if (data.back_processed["Sex (English)"]) {
-      // Remove the "Sex:" prefix if needed (or leave it as is, based on your design)
-      document.getElementById('sex').value = data.back_processed["Sex (English)"].replace("Sex:", "Sex:");
+      // The returned value will already be in the format "Sex:Male"
+      document.getElementById('sex').value = data.back_processed["Sex (English)"];
     }
     if (data.back_processed["Issuer Officer Name (Nepali)"]) {
       document.getElementById('issuerOfficer').value = data.back_processed["Issuer Officer Name (Nepali)"];
@@ -127,10 +110,7 @@ document.getElementById('processTextBtn').addEventListener('click', async () => 
     if (data.back_processed["Issuer Date (Nepali)"]) {
       document.getElementById('issuerDate').value = data.back_processed["Issuer Date (Nepali)"];
     }
-    
   } catch (error) {
-    processedResultDiv.textContent = "Error: " + error.message;
-  } finally {
-    loadingDiv.style.display = "none";
+    statusMsgDiv.textContent = "Error during processing: " + error.message;
   }
 });

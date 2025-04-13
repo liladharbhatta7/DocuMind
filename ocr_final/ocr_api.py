@@ -209,7 +209,7 @@ def process_back(text: str) -> dict:
         "Full Name (English)": full_name_en,
         "Date of Birth": dob,
         "Permanent Address": permanent_address,
-        "Sex (English)": f"Sex: {sex_en}" if sex_en else None,
+        "Sex (English)": f"{sex_en}" if sex_en else None,
         "Issuer Officer Name (Nepali)": issuer_officer,
         "Issuer Date (Nepali)": issuer_date
     }
