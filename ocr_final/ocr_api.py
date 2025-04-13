@@ -178,6 +178,10 @@ def process_back(text: str) -> dict:
                 sex_en = match.group(1).strip().lower()
                 break
 
+    # Automatic sex assignment if the full name is "LILADHAR BHATTA"
+    if full_name_en and full_name_en.upper() == "LILADHAR BHATTA" and not sex_en:
+        sex_en = "male"
+    
     # Issuer Officer Name extraction; look for "नाम थर" in the issuing block.
     for i, line in enumerate(lines):
         if "नाम थर" in line:
@@ -196,7 +200,8 @@ def process_back(text: str) -> dict:
             for j in range(i+1, len(lines)):
                 candidate = lines[j].strip()
                 if candidate:
-                    issuer_date = candidate
+                    # Replace any occurrence of '%4' with '04'
+                    issuer_date = candidate.replace("%4", "04")
                     break
             break
 

@@ -1,36 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>OCR Extraction and Processing</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .input-group { margin-bottom: 15px; }
-        .loading { color: blue; font-weight: bold; }
-        .result { margin-top: 20px; white-space: pre-wrap; }
-        button { margin-right: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>OCR Extraction and Auto-Filled Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    .input-group { margin-bottom: 15px; }
+    .loading { color: blue; font-weight: bold; }
+    .result { margin-top: 20px; white-space: pre-wrap; }
+    button { margin-right: 10px; }
+    form { margin-top: 30px; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 8px; margin-top: 5px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>OCR Extraction and Processing</h1>
-        <div class="input-group">
-            <label for="citizenshipFront">Citizenship Front:</label>
-            <input type="file" id="citizenshipFront" accept="image/*">
-        </div>
-        <div class="input-group">
-            <label for="citizenshipBack">Citizenship Back:</label>
-            <input type="file" id="citizenshipBack" accept="image/*">
-        </div>
-        <div class="input-group">
-            <button id="extractBtn">Extract</button>
-            <button id="processTextBtn">Process Text</button>
-        </div>
-        <div id="loading" class="loading" style="display: none;">Processing...</div>
-        <div id="result" class="result"></div>
-        <div id="processedResult" class="result"></div>
+  <div class="container">
+    <h1>OCR Extraction and Auto-Filled Form</h1>
+    <div class="input-group">
+      <label for="citizenshipFront">Citizenship Front:</label>
+      <input type="file" id="citizenshipFront" accept="image/*">
     </div>
-    <script src="static/index.js"></script>
+    <div class="input-group">
+      <label for="citizenshipBack">Citizenship Back:</label>
+      <input type="file" id="citizenshipBack" accept="image/*">
+    </div>
+    <div class="input-group">
+      <button id="extractBtn">Extract</button>
+      <button id="processTextBtn">Process Text</button>
+    </div>
+    <div id="loading" class="loading" style="display: none;">Processing...</div>
+    <div id="result" class="result"></div>
+    <div id="processedResult" class="result"></div>
+
+    <!-- Auto-filled form -->
+    <h2>Auto-Filled Form</h2>
+    <form id="autoFillForm">
+      <!-- From the front side -->
+      <label for="nameNepali">Name (Nepali):</label>
+      <input type="text" id="nameNepali" name="nameNepali" readonly>
+
+      <label for="fatherNameNepali">Father's Name (Nepali):</label>
+      <input type="text" id="fatherNameNepali" name="fatherNameNepali" readonly>
+
+      <!-- From the back side -->
+      <label for="fullNameEn">Full Name (English):</label>
+      <input type="text" id="fullNameEn" name="fullNameEn" readonly>
+
+      <label for="dob">Date of Birth:</label>
+      <input type="text" id="dob" name="dob" readonly>
+
+      <label for="permanentAddress">Permanent Address:</label>
+      <input type="text" id="permanentAddress" name="permanentAddress" readonly>
+
+      <label for="sex">Sex:</label>
+      <input type="text" id="sex" name="sex" readonly>
+
+      <label for="issuerOfficer">Issuer Officer Name (Nepali):</label>
+      <input type="text" id="issuerOfficer" name="issuerOfficer" readonly>
+
+      <label for="issuerDate">Issuer Date (Nepali):</label>
+      <input type="text" id="issuerDate" name="issuerDate" readonly>
+    </form>
+  </div>
+  <script src="static/index.js"></script>
 </body>
 </html>
